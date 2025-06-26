@@ -1,0 +1,42 @@
+import requests
+import json
+
+def get_bus_eta(route, stop_id, company='KMB'):
+    """
+    Get bus ETA for a specific route and stop in Hong Kong
+    
+    Parameters:
+    - route: Bus route number (e.g., '104')
+    - stop_id: Bus stop ID (e.g., '001034')
+    - company: Bus company ('KMB', 'CTB', 'NWFB', etc.)
+    
+    Returns:
+    - List of ETA information
+    """
+    base_url = "https://data.etabus.gov.hk/v1/transport/kmb/eta"
+    url = f"{base_url}/{stop_id}/{route}"
+    
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+        
+        if 'data' in data:
+            return data['data']
+        return []
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching data: {e}")
+        return None
+
+# Example usage
+if __name__ == "__main__":
+    route = "104"
+    stop_id = "001034"  # Example stop ID for KMB
+    etas = get_bus_eta(route, stop_id)
+    
+    if etas:
+        print(f"ETAs for route {route} at stop {stop_id}:")
+        for eta in etas:
+            print(f"- {eta['eta']} ({eta['rmk_en']})")
+    else:
+        print("No ETA data found.")
